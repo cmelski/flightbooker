@@ -1,0 +1,327 @@
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>SkyTrail | Flight Booking</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/styles.css') }}"
+  >
+
+  <script
+    src="{{ url_for('static', filename='js/app.js') }}"
+    defer
+  ></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="#">
+      <span class="brand-mark" aria-hidden="true">✈</span>
+      SkyTrail
+    </a>
+
+    <nav>
+      <a href="#search-panel">Book a flight</a>
+      <a href="#my-bookings">My bookings</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero section -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</p>
+
+        <h1>Where will you<br><span>go next?</span></h1>
+
+        <p>
+          Find your flight, make your plans, and leave the details to us.
+        </p>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="cloud cloud-one"></div>
+        <div class="cloud cloud-two"></div>
+        <div class="plane">✈</div>
+        <div class="hill hill-back"></div>
+        <div class="hill hill-front"></div>
+      </div>
+    </section>
+
+    <!-- Flight search -->
+    <section id="search-panel" class="panel search-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">PLAN YOUR TRIP</p>
+          <h2>Search flights</h2>
+        </div>
+
+        <span class="round-icon" aria-hidden="true">⌁</span>
+      </div>
+
+      <form id="flight-search-form">
+        <div class="form-grid search-grid">
+
+          <label for="origin">
+            From
+            <select id="origin" name="origin" required>
+              <option value="YYZ">Toronto (YYZ)</option>
+              <option value="YVR">Vancouver (YVR)</option>
+              <option value="YUL">Montreal (YUL)</option>
+              <option value="YYC">Calgary (YYC)</option>
+              <option value="JFK">New York (JFK)</option>
+              <option value="LHR">London (LHR)</option>
+            </select>
+          </label>
+
+          <button
+            id="swap-airports"
+            class="swap-button"
+            type="button"
+            aria-label="Swap origin and destination"
+          >
+            ⇄
+          </button>
+
+          <label for="destination">
+            To
+            <select id="destination" name="destination" required>
+              <option value="YVR">Vancouver (YVR)</option>
+              <option value="YYZ">Toronto (YYZ)</option>
+              <option value="YUL">Montreal (YUL)</option>
+              <option value="YYC">Calgary (YYC)</option>
+              <option value="JFK">New York (JFK)</option>
+              <option value="LHR">London (LHR)</option>
+            </select>
+          </label>
+
+          <label for="departure-date">
+            Departure
+            <input
+              id="departure-date"
+              name="departure_date"
+              type="date"
+              required
+            >
+          </label>
+
+          <label for="passengers">
+            Passengers
+            <select id="passengers" name="passengers" required>
+              <option value="1">1 passenger</option>
+              <option value="2">2 passengers</option>
+              <option value="3">3 passengers</option>
+              <option value="4">4 passengers</option>
+            </select>
+          </label>
+
+        </div>
+
+        <button
+          class="primary-button"
+          type="submit"
+          id="search-flights-button"
+        >
+          ⌕ Search flights
+        </button>
+      </form>
+
+      <p
+        id="search-message"
+        class="status-message"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </section>
+
+    <!-- Search results -->
+    <section
+      id="flight-results-section"
+      class="results-section"
+      hidden
+    >
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">AVAILABLE OPTIONS</p>
+          <h2>Choose your flight</h2>
+        </div>
+
+        <span id="results-count" class="count-pill">0 flights</span>
+      </div>
+
+      <div id="flight-results" class="flight-list"></div>
+    </section>
+
+    <!-- Passenger details -->
+    <section id="booking-panel" class="panel" hidden>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">ALMOST THERE</p>
+          <h2>Passenger details</h2>
+        </div>
+
+        <span class="round-icon">02</span>
+      </div>
+
+      <div id="selected-flight-summary" class="selected-flight-summary"></div>
+
+      <form id="booking-form">
+        <input type="hidden" id="flight-id" name="flightid">
+
+        <div class="form-grid">
+          <label for="firstname">
+            First name
+            <input
+              id="firstname"
+              name="firstname"
+              autocomplete="given-name"
+              placeholder="e.g. Alex"
+              required
+            >
+          </label>
+
+          <label for="lastname">
+            Last name
+            <input
+              id="lastname"
+              name="lastname"
+              autocomplete="family-name"
+              placeholder="e.g. Taylor"
+              required
+            >
+          </label>
+
+          <label for="email">
+            Email address
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="alex@example.com"
+              required
+            >
+          </label>
+
+          <label for="checkin">
+            Check-in date
+            <input id="checkin" name="checkin" type="date" required>
+          </label>
+
+          <label for="checkout">
+            Check-out date
+            <input id="checkout" name="checkout" type="date" required>
+          </label>
+
+          <label for="additionalneeds">
+            Additional needs <span class="optional">(optional)</span>
+            <input
+              id="additionalneeds"
+              name="additionalneeds"
+              placeholder="e.g. Window seat"
+            >
+          </label>
+        </div>
+
+        <label class="checkbox-label" for="depositpaid">
+          <input id="depositpaid" name="depositpaid" type="checkbox">
+          Deposit paid
+        </label>
+
+        <div class="form-actions">
+          <button
+            id="back-to-results"
+            class="secondary-button"
+            type="button"
+          >
+            Back to flights
+          </button>
+
+          <button
+            id="confirm-booking-button"
+            class="primary-button"
+            type="submit"
+          >
+            Confirm booking
+          </button>
+        </div>
+      </form>
+
+      <p
+        id="booking-message"
+        class="status-message"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </section>
+
+    <!-- Booking confirmation -->
+    <section
+      id="confirmation-panel"
+      class="panel confirmation-panel"
+      hidden
+      aria-live="polite"
+    >
+      <div class="success-icon">✓</div>
+
+      <p class="eyebrow">BOOKING COMPLETE</p>
+      <h2>Your trip is confirmed!</h2>
+
+      <p class="muted">
+        Keep your booking reference for your records.
+      </p>
+
+      <div id="confirmation-details" class="confirmation-details"></div>
+
+      <button
+        id="book-another-flight"
+        class="primary-button"
+        type="button"
+      >
+        Book another flight
+      </button>
+    </section>
+
+    <!-- My bookings -->
+    <section id="my-bookings" class="panel bookings-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR TRAVEL PLANS</p>
+          <h2>My bookings</h2>
+        </div>
+
+        <button id="refresh-bookings" class="secondary-button" type="button">
+          Refresh
+        </button>
+      </div>
+
+      <div id="bookings-list" class="bookings-list">
+        <p class="muted">Select “Refresh” to load bookings from the API.</p>
+      </div>
+
+      <p
+        id="bookings-message"
+        class="status-message"
+        role="status"
+        aria-live="polite"
+      ></p>
+    </section>
+  </main>
+
+  <footer>
+    <span class="brand">
+      <span class="brand-mark">✈</span>
+      SkyTrail
+    </span>
+
+    <span>Practice project · Demo bookings only</span>
+  </footer>
+</body>
+</html>
+
+
