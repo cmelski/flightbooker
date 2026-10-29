@@ -1,5 +1,6 @@
 from qa.core.schemas.flight_search_model import FlightSearchResponse
 import pytest
+from playwright.sync_api import APIRequestContext
 
 
 def get_flight_parameters():
@@ -23,7 +24,7 @@ def get_flight_parameters():
     ]
     return flight_data
 
-
+@pytest.mark.api1
 def test_search_flights_returns_matching_flights(reset_database, flight_service):
     # Act
     response = flight_service.search_flights(
@@ -81,3 +82,24 @@ def test_search_flights_returns_valid_response(reset_database, flight_service):
         assert flight.origin == "YYZ"
         assert flight.destination == "YVR"
         assert flight.departure_date.isoformat() == "2026-11-01"
+
+@pytest.mark.api_context
+def test_flight_search_api_context(api_context):
+
+
+    params = {
+        "origin": "YYZ",
+        "destination": "YVR",
+        "departure_date": "2026-11-01"
+    }
+
+    # Act: Publish the event
+    response = api_context.get(
+        "/api/v1/flights/search",
+        params=params
+    )
+
+    print(response.json())
+
+    # Assert: Event was accepted
+    assert response.status == 200

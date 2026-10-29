@@ -4,10 +4,11 @@ from qa.core.api_client import APIClient
 
 class FlightService:
 
-    def __init__(self, base_url):
-        self.api_client = APIClient(base_url)
+    def __init__(self, base_url, headers=None):
+        self.api_client = APIClient(base_url, headers)
 
     def search_flights(self, origin, destination, departure_date):
+
         params = {
             "origin": origin,
             "destination": destination,
@@ -17,4 +18,5 @@ class FlightService:
         return self.api_client.get(
             "/api/v1/flights/search",
             params=params
+
         )

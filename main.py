@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, url_for, flash, Response, jsonify, request, send_from_directory
 import psycopg
+from functools import wraps
 from db.db_create import create_db, create_table
 from flask import Flask, jsonify, request, render_template
 from psycopg import connect
@@ -16,6 +17,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 # Load test.env from the project root
 env_path = Path(__file__).resolve().parent.parent / "test.env"
 load_dotenv(env_path)
+API_KEY = os.getenv("API_KEY")
 
 def init_db():
     create_db()
@@ -32,11 +34,23 @@ def get_db_connection():
         row_factory=dict_row
     )
 
+def require_api_key(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        api_key = request.headers.get("x-api-key")
+
+        if not API_KEY or api_key != API_KEY:
+            return jsonify({"error": "Unauthorized"}), 401
+
+        return func(*args, **kwargs)
+
+    return wrapper
 @app.route('/')
 def home():
     return render_template("index.html")
 
 @app.route("/api/v1/flights/search", methods=["GET"])
+@require_api_key
 def search_flights():
     origin = request.args.get("origin", "").strip().upper()
     destination = request.args.get("destination", "").strip().upper()

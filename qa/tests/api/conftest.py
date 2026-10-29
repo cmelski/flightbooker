@@ -1,16 +1,14 @@
-
 import os
 from pathlib import Path
 
 import psycopg
 import pytest
 from dotenv import load_dotenv
-
+from playwright.sync_api import APIRequestContext
 
 # Load test.env from the project root
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(PROJECT_ROOT / "test.env")
-
 
 FLIGHTS = [
     ("TS101", "YYZ", "YVR", "2026-11-01", "08:30:00", 289.99, 180, "SCHEDULED"),
@@ -42,7 +40,6 @@ def reset_database():
 
     with psycopg.connect(**connection_params) as conn:
         with conn.cursor() as cur:
-
             # Remove existing data and reset generated IDs
             cur.execute(
                 "TRUNCATE TABLE bookings, flights "
@@ -66,3 +63,18 @@ def reset_database():
                 """,
                 FLIGHTS,
             )
+
+
+@pytest.fixture
+def api_context(playwright, request):
+
+    request = playwright.request.new_context(
+        base_url=os.environ["BASE_URL"],
+        extra_http_headers={
+            "Content-Type": "application/json"
+        }
+    )
+
+    yield request
+
+    request.dispose()
