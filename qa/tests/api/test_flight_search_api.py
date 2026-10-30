@@ -1,13 +1,13 @@
 from qa.core.schemas.flight_search_model import FlightSearchResponse
 import pytest
-from playwright.sync_api import APIRequestContext
+from datetime import date
 
 
 def get_flight_parameters():
     flight_data = [
         {'origin': 'YYZ',
          'destination': 'YVR',
-         'departure_date': '2026-11-01',
+         'departure_date': date.today().strftime("%Y-%m-%d"),
          'expected_status_code': 200
          },
 
@@ -27,10 +27,14 @@ def get_flight_parameters():
 @pytest.mark.api1
 def test_search_flights_returns_matching_flights(reset_database, flight_service):
     # Act
+    origin = 'YYZ'
+    destination = 'YVR'
+    departure_date = date.today().strftime("%Y-%m-%d")
+
     response = flight_service.search_flights(
-        origin="YYZ",
-        destination="YVR",
-        departure_date="2026-11-01"
+        origin=origin,
+        destination=destination,
+        departure_date=departure_date
     )
 
     # Assert
@@ -44,9 +48,9 @@ def test_search_flights_returns_matching_flights(reset_database, flight_service)
     assert data["count"] == len(data["flights"])
 
     for flight in data["flights"]:
-        assert flight["origin"] == "YYZ"
-        assert flight["destination"] == "YVR"
-        assert flight["departure_date"] == "2026-11-01"
+        assert flight["origin"] == origin
+        assert flight["destination"] == destination
+        assert flight["departure_date"] == departure_date
 
 
 @pytest.mark.api_status_codes
@@ -67,7 +71,7 @@ def test_search_flights_returns_valid_response(reset_database, flight_service):
     response = flight_service.search_flights(
         origin="YYZ",
         destination="YVR",
-        departure_date="2026-11-01"
+        departure_date=date.today().strftime("%Y-%m-%d")
     )
 
     assert response.status_code == 200
@@ -81,25 +85,5 @@ def test_search_flights_returns_valid_response(reset_database, flight_service):
     for flight in data.flights:
         assert flight.origin == "YYZ"
         assert flight.destination == "YVR"
-        assert flight.departure_date.isoformat() == "2026-11-01"
+        assert flight.departure_date.isoformat() == date.today().strftime("%Y-%m-%d")
 
-@pytest.mark.api_context
-def test_flight_search_api_context(api_context):
-
-
-    params = {
-        "origin": "YYZ",
-        "destination": "YVR",
-        "departure_date": "2026-11-01"
-    }
-
-    # Act: Publish the event
-    response = api_context.get(
-        "/api/v1/flights/search",
-        params=params
-    )
-
-    print(response.json())
-
-    # Assert: Event was accepted
-    assert response.status == 200

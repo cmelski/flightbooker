@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from datetime import datetime, date, timedelta
 
 def format_date(date_string):
     """
@@ -21,3 +20,6 @@ def format_date(date_string):
     """
     date = datetime.strptime(date_string, "%Y-%m-%d")
     return f"{date.strftime('%b')} {date.day}, {date.year}"
+
+def flight_date(days=0):
+    return (date.today() + timedelta(days=days)).isoformat()

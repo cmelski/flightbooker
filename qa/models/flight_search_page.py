@@ -1,6 +1,5 @@
 import re
-
-
+from decimal import Decimal
 
 
 class FlightSearchPage:
@@ -32,21 +31,34 @@ class FlightSearchPage:
         print(search_message_count, search_results_count, flight_card_count)
         return search_results_count == search_message_count == flight_card_count
 
-    def validate_flight_details(self, origin, destination, num_of_passengers):
-
+    def get_flight_search_results(self, origin, destination, num_of_passengers):
+        search_results = []
         # verify origin, destination, departure date
-        flight_details = self.flight_cards.locator(".flight-details")
-        flight_details_count = self.flight_cards.count()
-
-        for i in range(flight_details_count):
-            origin_destination = flight_details.nth(i).locator("h3").text_content()
+        flight_card_count = self.flight_cards.count()
+        for i in range(flight_card_count):
+            flight_details = self.flight_cards.nth(i).locator(".flight-details")
+            origin_destination = flight_details.locator("h3").text_content()
             orig = origin_destination.split()[0]
             dest = origin_destination.split()[-1]
-            print(orig, dest)
-            if origin == orig and destination == dest:
-                continue
-            else:
-                return False
+            dep_date = flight_details.locator("p").filter(
+                has_text=re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
+            ).text_content()
+            seats_available = int(flight_details.locator('p').filter(
+                has_text='seat').text_content().split()[0])
+            flight_price = self.flight_cards.nth(i).locator(".flight-price")
+            price_per_passenger = Decimal(flight_price.locator("h3").text_content().split('$')[1].
+                                          replace(',', ''))
+            total_price = Decimal(flight_price.locator('p').filter(has_text='Total').text_content().
+                                  split('$')[1].replace(',', ''))
+            print(orig, dest, price_per_passenger, total_price)
+            search_results.append({
+                'origin': orig,
+                'destination': dest,
+                'departure_date': dep_date,
+                'price_per_passenger': price_per_passenger,
+                'total_price': total_price,
+                'seats_available': seats_available
+            })
 
-        return True
-
+        print(search_results)
+        return search_results

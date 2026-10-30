@@ -116,7 +116,8 @@ async function apiRequest(url, options) {
     options = options || {};
 
     var requestHeaders = {
-        "Accept": "application/json"
+        "Accept": "application/json",
+        "x-api-key": "my-test-secret"
     };
 
     var requestOptions = {
