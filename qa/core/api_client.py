@@ -1,5 +1,6 @@
 import requests
 
+
 class APIClient:
 
     def __init__(self, base_url, headers=None):
@@ -14,4 +15,9 @@ class APIClient:
             **kwargs
         )
 
-
+    def post(self, endpoint, **kwargs):
+        return self.session.post(
+            f"{self.base_url}/{endpoint.lstrip('/')}",
+            timeout=10,
+            **kwargs
+        )

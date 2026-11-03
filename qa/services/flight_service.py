@@ -20,3 +20,10 @@ class FlightService:
             params=params
 
         )
+    def book_flight(self, payload):
+
+        return self.api_client.post(
+            "/api/v1/bookings",
+            json=payload
+
+        )

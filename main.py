@@ -1,4 +1,6 @@
 import os
+from datetime import date
+
 from flask import Flask, render_template, redirect, url_for, flash, Response, jsonify, request, send_from_directory
 import psycopg
 from functools import wraps
@@ -116,7 +118,168 @@ def search_flights():
         return jsonify({"error": "Unable to search flights"}), 500
 
 
+@app.route("/api/v1/bookings", methods=["POST"])
+def create_booking():
 
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "Invalid request"}), 400
+
+    required_fields = [
+        "flight_id",
+        "firstname",
+        "lastname",
+        "email",
+        "seats_booked"
+    ]
+
+    for field in required_fields:
+        if field not in data:
+            return jsonify({
+                "error": f"Missing required field: {field}"
+            }), 400
+
+    conn = get_db_connection()
+    cursor = None
+
+    try:
+        cursor = conn.cursor()
+
+        seats_booked = int(data["seats_booked"])
+
+        if seats_booked <= 0:
+            return jsonify({"error": "Invalid passenger count"}), 400
+
+        # Check flight exists and lock its row
+        cursor.execute("""
+            SELECT flight_id, total_seats
+            FROM flights
+            WHERE flight_id = %s
+            FOR UPDATE
+        """, (data["flight_id"],))
+
+        flight = cursor.fetchone()
+        print(flight)
+
+        if not flight:
+            return jsonify({"error": "Flight not found"}), 404
+
+        # Check available seats
+        if flight['total_seats'] < seats_booked:
+            return jsonify({"error": "Not enough seats available"}), 409
+
+        # Create booking
+        cursor.execute("""
+            INSERT INTO bookings (
+                flight_id,
+                firstname,
+                lastname,
+                email,
+                seats_booked,
+                booking_date,
+                status
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING booking_id
+        """, (
+            data["flight_id"],
+            data["firstname"],
+            data["lastname"],
+            data["email"],
+            seats_booked,
+            date.today(),
+            "CONFIRMED"
+        ))
+
+        booking_id = cursor.fetchone()
+
+        # Update remaining seats in flights table
+        cursor.execute("""
+            UPDATE flights
+            SET total_seats = total_seats - %s
+            WHERE flight_id = %s
+        """, (seats_booked, data["flight_id"]))
+
+        conn.commit()
+
+        return jsonify({
+            "booking": {
+                "booking_id": booking_id,
+                "flight_id": data["flight_id"],
+                "firstname": data["firstname"],
+                "lastname": data["lastname"],
+                "email": data["email"],
+                "seats_booked": seats_booked,
+                "booking_date": date.today().isoformat(),
+                "status": "CONFIRMED"
+            }
+        }), 201
+
+    except Exception as e:
+        conn.rollback()
+        app.logger.exception("Booking creation failed")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
+
+
+
+@app.route("/api/v1/bookings", methods=["GET"])
+def get_bookings():
+
+    conn = get_db_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                booking_id,
+                flight_id,
+                firstname,
+                lastname,
+                email,
+                seats_booked,
+                booking_date,
+                status
+            FROM bookings
+            ORDER BY booking_date DESC, booking_id DESC
+        """)
+
+        rows = cursor.fetchall()
+
+        bookings = []
+
+        for row in rows:
+            bookings.append({
+                "booking_id": row["booking_id"],
+                "flight_id": row["flight_id"],
+                "firstname": row["firstname"],
+                "lastname": row["lastname"],
+                "email": row["email"],
+                "seats_booked": row["seats_booked"],
+                "booking_date": row["booking_date"].isoformat()
+                    if row["booking_date"] else None,
+                "status": row["status"]
+            })
+
+        return jsonify({
+            "bookings": bookings,
+            "count": len(bookings)
+        }), 200
+
+    except Exception as e:
+        app.logger.exception("Retrieving bookings failed")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
 
 
 if __name__ == "__main__":

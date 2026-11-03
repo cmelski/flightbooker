@@ -444,8 +444,6 @@ function selectFlight(flight, passengers) {
         "Total: " + formatPrice(Number(flight.price) * passengers)
     );
 
-    document.getElementById("checkin").value = flight.departure_date;
-    document.getElementById("checkout").value = "";
 
     setMessage(bookingMessage, "", false);
 
@@ -505,29 +503,14 @@ bookingForm.addEventListener("submit", async function (event) {
         return;
     }
 
-    var checkin = document.getElementById("checkin").value;
-    var checkout = document.getElementById("checkout").value;
 
-    if (checkout && checkin && checkout <= checkin) {
-        setMessage(
-            bookingMessage,
-            "Check-out date must be after check-in date.",
-            true
-        );
-        return;
-    }
 
     var booking = {
         flight_id: getFlightId(selectedFlight),
         firstname: document.getElementById("firstname").value.trim(),
         lastname: document.getElementById("lastname").value.trim(),
         email: document.getElementById("email").value.trim(),
-        seats_booked: passengers,
-        checkin: checkin,
-        checkout: checkout,
-        additionalneeds:
-            document.getElementById("additionalneeds").value.trim(),
-        depositpaid: document.getElementById("depositpaid").checked
+        seats_booked: passengers
     };
 
     var confirmButton =

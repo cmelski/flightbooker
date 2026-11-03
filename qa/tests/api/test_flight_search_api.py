@@ -1,35 +1,16 @@
 from qa.core.schemas.flight_search_model import FlightSearchResponse
+from qa.test_data.flight_data_generator import get_flight_parameters
 import pytest
 from datetime import date
 
 
-def get_flight_parameters():
-    flight_data = [
-        {'origin': 'YYZ',
-         'destination': 'YVR',
-         'departure_date': date.today().strftime("%Y-%m-%d"),
-         'expected_status_code': 200
-         },
-
-        {'origin': 'YYZ',
-         'destination': 'YVR',
-         'departure_date': '2026-11-0',
-         'expected_status_code': 500
-         },
-        {'origin': 'YYZ',
-         'destination': 'YVR',
-         'departure_date': '',
-         'expected_status_code': 400
-         },
-    ]
-    return flight_data
 
 @pytest.mark.api1
 def test_search_flights_returns_matching_flights(reset_database, flight_service):
     # Act
-    origin = 'YYZ'
-    destination = 'YVR'
-    departure_date = date.today().strftime("%Y-%m-%d")
+    origin = get_flight_parameters()[0]['origin']
+    destination = get_flight_parameters()[0]['destination']
+    departure_date = get_flight_parameters()[0]['departure_date']
 
     response = flight_service.search_flights(
         origin=origin,

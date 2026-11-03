@@ -31,15 +31,15 @@ class FlightSearchPage:
         print(search_message_count, search_results_count, flight_card_count)
         return search_results_count == search_message_count == flight_card_count
 
-    def get_flight_search_results(self, origin, destination, num_of_passengers):
+    def get_flight_search_results(self):
         search_results = []
         # verify origin, destination, departure date
         flight_card_count = self.flight_cards.count()
         for i in range(flight_card_count):
             flight_details = self.flight_cards.nth(i).locator(".flight-details")
             origin_destination = flight_details.locator("h3").text_content()
-            orig = origin_destination.split()[0]
-            dest = origin_destination.split()[-1]
+            origin = origin_destination.split()[0]
+            destination = origin_destination.split()[-1]
             dep_date = flight_details.locator("p").filter(
                 has_text=re.compile(r"[A-Z][a-z]{2} \d{1,2}, \d{4}")
             ).text_content()
@@ -50,10 +50,10 @@ class FlightSearchPage:
                                           replace(',', ''))
             total_price = Decimal(flight_price.locator('p').filter(has_text='Total').text_content().
                                   split('$')[1].replace(',', ''))
-            print(orig, dest, price_per_passenger, total_price)
+            print(origin, destination, price_per_passenger, total_price)
             search_results.append({
-                'origin': orig,
-                'destination': dest,
+                'origin': origin,
+                'destination': destination,
                 'departure_date': dep_date,
                 'price_per_passenger': price_per_passenger,
                 'total_price': total_price,

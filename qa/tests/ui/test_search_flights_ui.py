@@ -52,7 +52,7 @@ def test_search_flights_ui_alternative(reset_database, page_instance):
 
     assert flight_search_page.compare_results_counts() is True
 
-    search_results = flight_search_page.get_flight_search_results(origin, destination, num_of_passengers)
+    search_results = flight_search_page.get_flight_search_results()
     dep_date_formatted = format_date(departure_date)
     for search_result in search_results:
         assert origin in search_result.values()
