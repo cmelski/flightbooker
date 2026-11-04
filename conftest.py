@@ -1,6 +1,7 @@
 import os
 import pytest
 import psycopg
+from datetime import date
 from playwright.sync_api import sync_playwright
 from pathlib import Path
 from dotenv import load_dotenv
@@ -26,7 +27,6 @@ def get_db_connection_params():
 
 @pytest.fixture()
 def db_client():
-
     client = DBClient(get_db_connection_params())
     yield client
     client.close()
@@ -61,6 +61,7 @@ def reset_database(db_client):
 
     db_client.commit()
 
+
 @pytest.fixture(scope="session")
 def base_url():
     return os.environ["BASE_URL"]
@@ -79,6 +80,17 @@ def flight_service(base_url, api_key):
     flight_service = FlightService(base_url, headers)
     yield flight_service
     flight_service.api_client.session.close()
+
+
+@pytest.fixture()
+def flight_details_for_search():
+    flight_details = get_initial_flight_records_for_db()[0]
+    return {'origin': flight_details[2],
+            'destination': flight_details[3],
+            'departure_date': date.today().strftime("%Y-%m-%d"),
+            'num_of_passengers': 4,
+            'flight_number': flight_details[1]
+            }
 
 
 @pytest.fixture(scope="function")
