@@ -554,8 +554,9 @@ bookingForm.addEventListener("submit", async function (event) {
 function showConfirmation(booking, flight, passengers) {
     clearElement(confirmationDetails);
 
+
     var reference =
-        booking.bookingid ||
+        booking.booking_id.booking_id ||
         booking.booking_id ||
         booking.id ||
         "Created";

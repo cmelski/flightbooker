@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 
+
 def format_date(date_string):
     """
     Convert a date from YYYY-MM-DD to 'Mon D, YYYY' format.
@@ -21,5 +22,18 @@ def format_date(date_string):
     date = datetime.strptime(date_string, "%Y-%m-%d")
     return f"{date.strftime('%b')} {date.day}, {date.year}"
 
+
 def flight_date(days=0):
     return (date.today() + timedelta(days=days)).isoformat()
+
+
+def format_flight_time_of_day(flight_time):
+    hour = flight_time.split(':')[0]
+    minute = flight_time.split(':')[1]
+    formatted_flight_time = hour + ':' + minute
+    print(formatted_flight_time)
+    return formatted_flight_time
+
+
+def format_price(price):
+    return f"${price:,.2f}"

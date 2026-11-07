@@ -89,7 +89,9 @@ def flight_details_for_search():
             'destination': flight_details[3],
             'departure_date': date.today().strftime("%Y-%m-%d"),
             'num_of_passengers': 4,
-            'flight_number': flight_details[1]
+            'flight_number': flight_details[1],
+            'price': flight_details[6],
+            'departure_time': flight_details[5]
             }
 
 
