@@ -72,14 +72,7 @@ def search_flights():
             f.departure_date,
             f.departure_time,
             f.price,
-            f.total_seats - COALESCE(
-                (
-                    SELECT SUM(b.seats_booked)
-                    FROM bookings b
-                    WHERE b.flight_id = f.flight_id
-                      AND b.status = 'CONFIRMED'
-                ), 0
-            ) AS seats_available
+            f.total_seats AS seats_available
         FROM flights f
         WHERE f.origin = %s
           AND f.destination = %s
@@ -178,9 +171,10 @@ def create_booking():
                 email,
                 seats_booked,
                 booking_date,
-                status
+                status,
+                total_price
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING booking_id
         """, (
             data["flight_id"],
@@ -189,7 +183,8 @@ def create_booking():
             data["email"],
             seats_booked,
             date.today(),
-            "CONFIRMED"
+            "CONFIRMED",
+            data["total_price"]
         ))
 
         booking_id = cursor.fetchone()
@@ -212,7 +207,8 @@ def create_booking():
                 "email": data["email"],
                 "seats_booked": seats_booked,
                 "booking_date": date.today().isoformat(),
-                "status": "CONFIRMED"
+                "status": "CONFIRMED",
+                "total_price": data["total_price"]
             }
         }), 201
 

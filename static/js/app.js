@@ -494,6 +494,7 @@ bookingForm.addEventListener("submit", async function (event) {
 
     var passengers = Number(passengersSelect.value);
 
+
     if (getAvailableSeats(selectedFlight) < passengers) {
         setMessage(
             bookingMessage,
@@ -503,14 +504,15 @@ bookingForm.addEventListener("submit", async function (event) {
         return;
     }
 
-
+    var totalPrice = selectedFlight.price * passengers;
 
     var booking = {
         flight_id: getFlightId(selectedFlight),
         firstname: document.getElementById("firstname").value.trim(),
         lastname: document.getElementById("lastname").value.trim(),
         email: document.getElementById("email").value.trim(),
-        seats_booked: passengers
+        seats_booked: passengers,
+        total_price: totalPrice
     };
 
     var confirmButton =

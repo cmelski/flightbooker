@@ -68,3 +68,8 @@ def create_table():
                     status VARCHAR(20) NOT NULL DEFAULT 'CONFIRMED'
                 );
             """)
+
+            cur.execute("""
+                                ALTER TABLE bookings
+                                ADD COLUMN IF NOT EXISTS total_price DECIMAL(10, 2) NOT NULL;
+                            """)

@@ -121,12 +121,7 @@ def test_book_flight_ui(reset_database, flight_details_for_search, page_instance
     historical_bookings = flight_booking_flow.view_booking_history()
     expect(historical_bookings.bookings_list).to_have_count(1)
     expect(historical_bookings.bookings_list).to_contain_text(f'Booking #{booking_reference}')
-
-
-
-
-
-@pytest.mark.flight_search_ui_mock
+@pytest.mark.ui4
 def test_flight_search_not_enough_seats(reset_database, page_instance):
 
     # Arrange: Mock flight search API response
@@ -173,4 +168,41 @@ def test_flight_search_not_enough_seats(reset_database, page_instance):
     expect(
         page_instance.locator("#search-message")
     ).to_contain_text("not enough seats")
+    logger.info(f'Error message: {page_instance.locator("#search-message").text_content()}')
+
+@pytest.mark.ui5
+def test_flight_search_no_matching_flights(reset_database, page_instance):
+
+    # Arrange: Mock flight search API response
+    def mock_flight_search(route):
+
+        mock_response = {
+            "flights": []
+        }
+
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(mock_response)
+        )
+
+    page_instance.route(
+        "**/api/v1/flights/search**",
+        mock_flight_search
+    )
+
+    # Act: Search for 4 passengers
+    flight_booking_flow = FlightBookingFlow(page_instance)
+
+    flight_booking_flow.search_flights(
+        "YYZ",
+        "YVR",
+        flight_date(0),
+        4
+    )
+
+    # Assert
+    expect(
+        page_instance.locator("#search-message")
+    ).to_contain_text("No flights found for your search")
     logger.info(f'Error message: {page_instance.locator("#search-message").text_content()}')
