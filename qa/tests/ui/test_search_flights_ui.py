@@ -206,3 +206,4 @@ def test_flight_search_no_matching_flights(reset_database, page_instance):
         page_instance.locator("#search-message")
     ).to_contain_text("No flights found for your search")
     logger.info(f'Error message: {page_instance.locator("#search-message").text_content()}')
+

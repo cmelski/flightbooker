@@ -94,7 +94,22 @@ def flight_details_for_search():
             'departure_time': flight_details[5]
             }
 
-
+@pytest.fixture()
+def create_booking_api():
+    base_url = os.environ.get('BASE_URL')
+    flight_details = get_initial_flight_records_for_db()[0]
+    flight_id_to_book = flight_details[0]
+    seats = 4
+    ticket_price = flight_details[6]
+    booking = {"flight_id": flight_id_to_book,
+              "firstname": "Karen",
+              "lastname": "Melski",
+              "email": "kmelski@gmail.com",
+              "seats_booked": seats,
+              "total_price": seats * ticket_price
+               }
+    flight_service = FlightService(base_url)
+    return flight_service.book_flight(booking)
 @pytest.fixture(scope="function")
 def page_instance():
     with sync_playwright() as p:
